@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Spiral</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #0a0e27 0%, #020408 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+        }
+
+        .spiral-container {
+            position: relative;
+            width: 800px;
+            height: 800px;
+        }
+
+        .dot {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #4dd0ff, #0066cc);
+            box-shadow: 
+                0 0 20px rgba(77, 208, 255, 0.8),
+                0 0 40px rgba(77, 208, 255, 0.4),
+                inset 0 0 10px rgba(255, 255, 255, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.9;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes shimmer {
+            0%, 100% {
+                filter: brightness(1);
+            }
+            50% {
+                filter: brightness(1.5);
+            }
+        }
+
+        .info {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(77, 208, 255, 0.6);
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+            animation: fadeIn 2s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .glow-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, 
+                rgba(77, 208, 255, 0.1) 0%, 
+                transparent 70%);
+            animation: pulse-glow 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="spiral-container" id="spiralContainer">
+        <div class="glow-effect"></div>
+    </div>
+    
+    <div class="info">
+        Cosmic Spiral · Rotating Through Space
+    </div>
+
+    <script>
+        const container = document.getElementById('spiralContainer');
+        const numDots = 60;
+        const maxRadius = 350;
+        const turns = 4;
+        const rotationSpeed = 0.0005;
+        
+        // Create dots in spiral pattern
+        const dots = [];
+        for (let i = 0; i < numDots; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            
+            // Calculate spiral position
+            const t = i / numDots;
+            const angle = t * turns * Math.PI * 2;
+            const radius = t * maxRadius;
+            
+            // Size varies based on position in spiral (larger in center, smaller at edges)
+            const size = 20 - (t * 12);
+            dot.style.width = `${size}px`;
+            dot.style.height = `${size}px`;
+            
+            // Store original position
+            dot.dataset.radius = radius;
+            dot.dataset.angle = angle;
+            dot.dataset.index = i;
+            
+            // Add delay to pulse animation for wave effect
+            dot.style.animationDelay = `${t * 2}s`;
+            
+            container.appendChild(dot);
+            dots.push(dot);
+        }
+        
+        let time = 0;
+        
+        function animate() {
+            time += rotationSpeed;
+            
+            dots.forEach((dot, index) => {
+                const radius = parseFloat(dot.dataset.radius);
+                const baseAngle = parseFloat(dot.dataset.angle);
+                const angle = baseAngle + time * Math.PI * 2;
+                
+                // Calculate position
+                const x = 400 + Math.cos(angle) * radius;
+                const y = 400 + Math.sin(angle) * radius;
+                
+                dot.style.left = `${x}px`;
+                dot.style.top = `${y}px`;
+                
+                // Add subtle scale effect based on rotation
+                const scale = 1 + Math.sin(time * Math.PI * 2 + index * 0.1) * 0.1;
+                dot.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            });
+            
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+    </script>
+</body>
+</html>
